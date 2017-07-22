@@ -22,12 +22,10 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MoviesAdap
     Context mContext;
     private final MoviesAdapterOnClickHandler mClickHandler;
 
-    public MoviesAdapter(Context context, MoviesAdapterOnClickHandler clickHandler,List<Movie> moviesList)
+    public MoviesAdapter(Context context, MoviesAdapterOnClickHandler clickHandler)
     {
         mContext = context;
         mClickHandler = clickHandler;
-        mMoviesList = moviesList;
-
     }
 
     public interface MoviesAdapterOnClickHandler

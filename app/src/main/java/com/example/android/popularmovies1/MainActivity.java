@@ -1,6 +1,9 @@
 package com.example.android.popularmovies1;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -29,7 +32,6 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
     private ProgressBar mLoadingIndicator;
     private GridLayoutManager mLayoutManager;
     private boolean button;
-    private List<Movie> movieList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +42,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         mLoadingIndicator = (ProgressBar) findViewById(R.id.pb_loading_indicator);
 
         mLayoutManager = new GridLayoutManager(MainActivity.this, 2);
-        mMoviesAdapter = new MoviesAdapter(this,this,movieList);
+        mMoviesAdapter = new MoviesAdapter(this,this);
 
         mRecyclerView = (RecyclerView) findViewById(R.id.rv_movies);
         mRecyclerView.setHasFixedSize(true);
@@ -51,9 +53,29 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         loadMoviesData();
     }
 
+    public boolean connect()
+    {
+        ConnectivityManager coMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo info = coMgr.getActiveNetworkInfo();
+
+        if (info != null && info.isConnected()) {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     private void loadMoviesData()
     {
-        new FetchMoviesData().execute();
+        if(connect()) {
+            new FetchMoviesData().execute();
+        }
+        else
+        {
+            showErrorMessage();
+        }
     }
 
 
@@ -86,6 +108,12 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onStart()
+    {
+        super.onStart();
     }
 
 
@@ -155,7 +183,7 @@ public class MainActivity extends AppCompatActivity implements MoviesAdapter.Mov
         protected void onPostExecute(List<Movie> movieData)
         {
             mLoadingIndicator.setVisibility(View.INVISIBLE);
-            if(!movieData.isEmpty())
+            if(!movieData.isEmpty() && connect())
             {
                 showMoviesDataView();
                 mMoviesAdapter.setMovieData(movieData);
